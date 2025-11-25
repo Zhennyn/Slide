@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultoria WePink - Nexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. SETUP GERAL E VARIAVEIS */
+:root {
+    --primary-pink: #E91E63;
+    --secondary-gold: #FFC107;
+    --dark-bg: #121212;
+    --light-bg: #FFF0F5;
+    --glass-bg: rgba(255, 255, 255, 0.90);
+    --text-dark: #333333;
+    --text-light: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: var(--dark-bg);
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Fundo Animado "Aurora" */
+  background: linear-gradient(-45deg, #2c001e, #000000, #33001b, #1a050f);
+  background-size: 400% 400%;
+  animation: auroraBG 10s ease infinite;
+}
+
+@keyframes auroraBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 2. PALCO DA APRESENTAÇÃO (3D STAGE) */
+#presentation-area {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    perspective: 2500px;
+    transform-style: preserve-3d;
+}
+
+/* 3. SLIDES E TRANSIÇÕES */
+.slide-container {
+  background-color: var(--light-bg);
+  border-radius: 20px;
+  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255,255,255,0.5);
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  padding: 70px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+/* Efeitos de Luz de Fundo no Slide */
+.slide-container::before {
+    content: ''; position: absolute; top: -150px; right: -150px; width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--secondary-gold) 0%, transparent 70%);
+    opacity: 0.15; filter: blur(80px); z-index: 0;
+    animation: pulseLight 5s infinite alternate;
+}
+.slide-container::after {
+    content: ''; position: absolute; bottom: -150px; left: -150px; width: 700px; height: 700px;
+    background: radial-gradient(circle, var(--primary-pink) 0%, transparent 70%);
+    opacity: 0.12; filter: blur(90px); z-index: 0;
+    animation: pulseLight 7s infinite alternate-reverse;
+}
+@keyframes pulseLight { 0% { transform: scale(1); opacity: 0.1; } 100% { transform: scale(1.2); opacity: 0.25; } }
+
+/* CLASSE ATIVA: Animação "Cube Rotate" Suave */
+.slide-container.active {
+    display: flex;
+    opacity: 1;
+    z-index: 10;
+    animation: cinemaIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes cinemaIn {
+    0% { opacity: 0; transform: scale(0.8) translateZ(-500px) rotateX(-10deg); filter: blur(10px); }
+    100% { opacity: 1; transform: scale(1) translateZ(0) rotateX(0deg); filter: blur(0); }
+}
+
+/* 4. ANIMAÇÕES DE ELEMENTOS INTERNOS (CASCATA) */
+
+/* Títulos: Expandir */
+.active .animate-title { 
+    animation: tracking-in-expand 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000) 0.2s forwards; 
+    opacity: 0; 
+}
+@keyframes tracking-in-expand {
+  0% { letter-spacing: -0.5em; opacity: 0; }
+  40% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Textos: Fade Up */
+.active .animate-fade-up { 
+    animation: fadeInUp 0.8s ease-out forwards; 
+    opacity: 0; transform: translateY(40px);
+}
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* Imagens: 3D Flip */
+.active .animate-img { 
+    animation: flipInY 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+    opacity: 0; transform: perspective(400px) rotateY(90deg);
+}
+@keyframes flipInY { to { opacity: 1; transform: perspective(400px) rotateY(0deg); } }
+
+/* Cards/Tiles: Pop In */
+.active .animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0; transform: scale(0.5);
+}
+@keyframes popIn { to { opacity: 1; transform: scale(1); } }
+
+/* Gráficos: Crescer Barra */
+.active .animate-bar { width: 0; animation: growBar 1.5s ease-out 0.8s forwards; }
+@keyframes growBar { to { width: var(--target-width); } }
+
+/* Ícones Flutuantes (Loop) */
+.floating-icon { animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* Confetti (Slide 6 Especial) */
+.confetti {
+    position: absolute; width: 10px; height: 10px; background-color: var(--secondary-gold);
+    animation: confetti-fall 4s linear infinite; opacity: 0; z-index: 1;
+}
+@keyframes confetti-fall {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(800px) rotate(720deg); opacity: 0; }
+}
+
+/* Delays */
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+.delay-4 { animation-delay: 0.8s; }
+
+/* 5. ESTILOS VISUAIS */
+h1, h2, h3 { color: var(--primary-pink); font-family: 'Montserrat', sans-serif; margin: 0; text-transform: uppercase; letter-spacing: -1px; z-index: 2; position: relative; }
+h1 { font-size: 90px; font-weight: 800; text-shadow: 0 10px 30px rgba(233,30,99,0.3); background: linear-gradient(135deg, #ff80ab, #c51162); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.slide-title { font-size: 48px; margin-bottom: 40px; padding-bottom: 15px; border-bottom: 5px solid var(--secondary-gold); display: inline-block; }
+
+p, li, td { color: var(--text-dark); font-size: 20px; line-height: 1.6; position: relative; z-index: 2; }
+
+/* Image Wrapper 2.0 */
+.image-wrapper { 
+    border-radius: 20px; overflow: hidden; 
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3); 
+    border: 6px solid white; 
+    height: 450px; 
+    transition: transform 0.4s ease;
+    background: #000;
+}
+.image-wrapper:hover { transform: scale(1.03); border-color: var(--secondary-gold); }
+.image-wrapper img { width: 100%; height: 100%; object-fit: cover; opacity: 0.95; transition: opacity 0.4s; }
+.image-wrapper:hover img { opacity: 1; }
+
+/* Tiles */
+.tiled-content { display: flex; gap: 30px; justify-content: center; }
+.tile { 
+    background: var(--glass-bg); padding: 35px; border-radius: 20px; flex: 1; text-align: center; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.6);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s;
+}
+.tile:hover { transform: translateY(-10px); border-color: var(--primary-pink); }
+.tile .icon { font-size: 55px; background: -webkit-linear-gradient(45deg, var(--secondary-gold), #ff6f00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+
+/* Tabelas */
+table { width: 100%; border-collapse: separate; border-spacing: 0 12px; z-index: 2; }
+th { background: linear-gradient(90deg, #d81b60, #ec407a); color: white; padding: 18px; text-align: left; font-weight: 800; border-radius: 8px; font-size: 16px; text-transform: uppercase; }
+td { background: white; padding: 18px; border: 1px solid rgba(0,0,0,0.05); font-size: 18px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+tr:hover td { transform: scale(1.01); background: #fff8fb; transition: 0.2s; }
+tr td:first-child { border-left: 5px solid var(--secondary-gold); font-weight: 700; border-radius: 8px 0 0 8px; }
+tr td:last-child { border-radius: 0 8px 8px 0; }
+
+/* Gráficos */
+.chart-container { display: flex; flex-direction: column; gap: 25px; width: 100%; z-index: 2; }
+.bar { display: flex; align-items: center; gap: 20px; }
+.bar-label { flex: 0 0 160px; text-align: right; font-weight: 700; font-size: 18px; }
+.bar-track { flex-grow: 1; background: rgba(0,0,0,0.05); border-radius: 50px; height: 45px; overflow: hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.1); }
+.bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-pink), #ff80ab, var(--secondary-gold)); display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; color: white; font-weight: 800; border-radius: 50px; width: 0; }
+
+/* Full BG */
+.full-bg-image { background-size: cover; background-position: center; }
+.full-bg-image::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(233, 30, 99, 0.92), rgba(0, 0, 0, 0.85)); z-index: 0; }
+.content-overlay { text-align: center; max-width: 900px; margin: 0 auto; z-index: 2; position: relative; border: 1px solid rgba(255,255,255,0.2); padding: 50px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+
+/* NAV */
+.nav-controls { position: fixed; bottom: 30px; right: 40px; display: flex; gap: 20px; z-index: 100; }
+.nav-btn {
+    background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(8px);
+    color: white; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; font-size: 24px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.nav-btn:hover { background: var(--primary-pink); transform: scale(1.2); border-color: var(--primary-pink); }
+.slide-counter { position: fixed; bottom: 48px; left: 40px; color: rgba(255, 255, 255, 0.6); font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 600; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+/* Utilitários */
+.two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.big-number { font-size: 160px; font-weight: 900; color: rgba(255,255,255,0.5); -webkit-text-stroke: 3px var(--primary-pink); line-height: 1; filter: drop-shadow(0 0 10px var(--primary-pink)); }
+    </style>
+</head>
+<body>
+
+<div id="presentation-area">
+    
+    <!-- Slide 1: Capa -->
+    <div class="slide-container active" id="slide1">
+        <div style="text-align: center; z-index: 5;">
+            <div class="animate-pop" style="display: inline-block; padding: 25px 50px; border: 6px solid var(--secondary-gold); margin-bottom: 40px; background: rgba(255,255,255,0.8);">
+                <h1 style="font-size: 110px; margin: 0; line-height: 1; letter-spacing: -5px;">WEPINK</h1>
+            </div>
+            <h2 class="animate-title delay-1" style="color: var(--text-dark); letter-spacing: 6px; font-size: 26px;">CONSULTORIA DE GESTÃO & VENDAS</h2>
+            <hr class="animate-fade-up delay-2" style="width: 120px; height: 6px; background: linear-gradient(90deg, var(--primary-pink), var(--secondary-gold)); border: none; margin: 40px auto; border-radius: 3px;">
+            <p class="animate-fade-up delay-3" style="font-size: 22px; font-weight: 700; color: #555;">Nexus Consultoria</p>
+        </div>
+    </div>
+
+    <!-- Slide 2: Introdução -->
+    <div class="slide-container" id="slide2">
+        <h2 class="slide-title animate-title">O Fenômeno WePink</h2>
+        <div class="two-column">
+            <div class="animate-fade-up delay-1">
+                <p>O mercado brasileiro de beleza viu o nascimento de uma gigante: uma <strong>Digitally Native Vertical Brand (DNVB)</strong>.</p>
+                <p style="margin-top: 25px;">Fundada por <strong>Virginia Fonseca</strong>, a marca desafiou a lógica tradicional usando <strong>Live Commerce</strong> para faturar milhões em poucas horas.</p>
+                <div style="margin-top: 35px; padding: 25px; background: rgba(233,30,99,0.08); border-left: 6px solid var(--primary-pink); border-radius: 0 12px 12px 0;">
+                    <i class="fa-solid fa-bullseye" style="color: var(--primary-pink); margin-right: 10px;"></i> <strong>Foco do Estudo:</strong> Analisar como a operação logística suporta (ou falha em suportar) esse volume explosivo.
+                </div>
+            </div>
+            <div class="image-wrapper animate-img delay-2">
+                <img src="https://images.unsplash.com/photo-1604014237800-1c9102c219da?q=80&w=1000&auto=format&fit=crop" alt="Loja Cosméticos">
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Objetivos -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title animate-title">Nossa Missão</h2>
+        <div class="tiled-content">
+            <div class="tile animate-pop delay-1">
+                <div class="icon floating-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                <h3>Diagnóstico</h3>
+                <p>Identificar os gargalos críticos no "Backoffice": Logística Reversa, Estoque e SAC.</p>
+            </div>
+            <div class="tile animate-pop delay-2">
+                <div class="icon floating-icon" style="animation-delay: 0.5s;"><i class="fa-solid fa-chess"></i></div>
+                <h3>Estratégia</h3>
+                <p>Aplicar a Matriz SWOT para entender o posicionamento real da marca.</p>
+            </div>
+            <div class="tile animate-pop delay-3">
+                <div class="icon floating-icon" style="animation-delay: 1s;"><i class="fa-solid fa-lightbulb"></i></div>
+                <h3>Solução</h3>
+                <p>Desenvolver um plano 5W2H prático para recuperar a reputação.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Justificativa -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title animate-title">Por que isso importa?</h2>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <div class="animate-pop delay-1" style="text-align: center; padding: 0 80px;">
+                <i class="fa-solid fa-quote-left floating-icon" style="font-size: 70px; color: var(--secondary-gold); margin-bottom: 30px; opacity: 0.8;"></i>
+                <h3 style="font-size: 55px; line-height: 1.3; color: var(--text-dark); font-weight: 800;">
+                    "Vender é apenas o convite.<br>A entrega é o <span style="background: linear-gradient(180deg, transparent 65%, #ffeb3b 65%);">casamento</span>."
+                </h3>
+                <p class="delay-2" style="margin-top: 40px; font-style: italic; color: #666;">— Princípios de Customer Experience</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Metodologia -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title animate-title">Metodologia</h2>
+        <div class="two-column">
+            <div class="tile animate-pop delay-1" style="text-align: left; display: flex; align-items: center; gap: 30px;">
+                <div style="font-size: 60px; color: var(--primary-pink);"><i class="fa-solid fa-microscope"></i></div>
+                <div>
+                    <h3>Estudo de Caso</h3>
+                    <p>Imersão profunda nos processos operacionais e modelo de negócio da WePink.</p>
+                </div>
+            </div>
+            <div class="tile animate-pop delay-2" style="text-align: left; display: flex; align-items: center; gap: 30px;">
+                <div style="font-size: 60px; color: var(--secondary-gold);"><i class="fa-solid fa-users-viewfinder"></i></div>
+                <div>
+                    <h3>Netnografia</h3>
+                    <p>Análise de sentimento em: Reclame Aqui, X (Twitter) e Comentários do Instagram.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: História (COM FOTO NOVA E CONFETTI) -->
+    <div class="slide-container" id="slide6" style="padding: 0;">
+        <!-- Efeito Confetti -->
+        <div class="confetti" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="confetti" style="left: 20%; animation-delay: 2s; background: var(--primary-pink);"></div>
+        <div class="confetti" style="left: 50%; animation-delay: 1.5s;"></div>
+        <div class="confetti" style="left: 70%; animation-delay: 0.5s; background: var(--primary-pink);"></div>
+        <div class="confetti" style="left: 90%; animation-delay: 2.5s;"></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; height: 100%;">
+            <div style="padding: 80px; display: flex; flex-direction: column; justify-content: center; z-index: 2;">
+                <h2 class="animate-title" style="font-size: 55px; margin-bottom: 30px; line-height: 1.1;">Do Zero ao<br><span style="color: var(--secondary-gold);">Milhão</span></h2>
+                <div class="animate-fade-up delay-1">
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 30px; display: flex; align-items: center;">
+                            <i class="fa-solid fa-rocket" style="color: var(--primary-pink); font-size: 28px; margin-right: 20px; width: 40px; text-align: center;"></i>
+                            <div><strong>2021:</strong> Fundação 100% Digital.</div>
+                        </li>
+                        <li style="margin-bottom: 30px; display: flex; align-items: center;">
+                            <i class="fa-solid fa-store" style="color: var(--primary-pink); font-size: 28px; margin-right: 20px; width: 40px; text-align: center;"></i>
+                            <div><strong>Expansão:</strong> Quiosques em Shoppings de Elite.</div>
+                        </li>
+                        <li style="display: flex; align-items: center;">
+                            <i class="fa-solid fa-bag-shopping" style="color: var(--primary-pink); font-size: 28px; margin-right: 20px; width: 40px; text-align: center;"></i>
+                            <div><strong>Mix:</strong> Perfumes, Body Splash e Make.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- FOTO NOVA INSERIDA AQUI -->
+            <div class="image-wrapper animate-img delay-2" style="height: 100%; border-radius: 0; border: none; transform: none; box-shadow: none;">
+                <img src="https://images.unsplash.com/photo-1518655048521-f130df041f66?q=80&w=1000&auto=format&fit=crop" alt="Pink Cosmetics Celebration">
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Problemática -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title animate-title">As Dores do Crescimento</h2>
+        <div class="two-column">
+            <div style="text-align: center;" class="animate-pop delay-1">
+                <div class="big-number">ALTA</div>
+                <div style="font-size: 32px; font-weight: 800; color: var(--text-dark); margin-top: -25px; letter-spacing: 2px;">TAXA DE ATRASO</div>
+                <div style="margin-top: 20px; font-size: 80px; color: var(--primary-pink);"><i class="fa-solid fa-chart-line-down"></i></div>
+            </div>
+            <div class="animate-fade-up delay-2">
+                <div class="tile" style="text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 20px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; color: orange;"></i>
+                    <div>
+                        <h3 style="margin-bottom: 5px; font-size: 24px;">Ruptura de Estoque</h3>
+                        <p style="font-size: 18px; margin: 0;">Venda de produtos sem estoque físico durante as Lives.</p>
+                    </div>
+                </div>
+                <div class="tile" style="text-align: left; display: flex; align-items: center; gap: 20px;">
+                    <i class="fa-solid fa-robot" style="font-size: 40px; color: #555;"></i>
+                    <div>
+                        <h3 style="margin-bottom: 5px; font-size: 24px;">SAC Robotizado</h3>
+                        <p style="font-size: 18px; margin: 0;">Atendimento automático frustra clientes com problemas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Gráfico -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title animate-title">Market Share & Percepção</h2>
+        <div class="chart-container">
+            <div class="bar animate-fade-up delay-1">
+                <div class="bar-label">O Boticário</div>
+                <div class="bar-track"><div class="bar-fill animate-bar" style="--target-width: 95%;">Líder Absoluto</div></div>
+            </div>
+            <div class="bar animate-fade-up delay-2">
+                <div class="bar-label">Natura</div>
+                <div class="bar-track"><div class="bar-fill animate-bar" style="--target-width: 85%;">Top of Mind (ESG)</div></div>
+            </div>
+            <div class="bar animate-fade-up delay-3">
+                <div class="bar-label">WePink</div>
+                <div class="bar-track"><div class="bar-fill animate-bar" style="--target-width: 60%; background: linear-gradient(90deg, var(--secondary-gold), #ffd54f); box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);">Força Digital / Logística Frágil</div></div>
+            </div>
+            <div class="bar animate-fade-up delay-4">
+                <div class="bar-label">Eudora</div>
+                <div class="bar-track"><div class="bar-fill animate-bar" style="--target-width: 55%;">Competidor Direto</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: SWOT -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title animate-title">Análise SWOT</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 25px; height: 100%;">
+            <!-- Forças -->
+            <div class="tile animate-pop delay-1" style="background: #e8f5e9; border-left: 8px solid #4caf50; text-align: left; padding: 25px;">
+                <h3 style="color: #2e7d32; font-size: 24px;"><i class="fa-solid fa-plus-circle"></i> FORÇAS</h3>
+                <ul style="font-size: 18px; margin-top: 15px; padding-left: 20px;">
+                    <li>Engajamento massivo</li>
+                    <li>Agilidade em lançamentos</li>
+                    <li>Alta conversão em Lives</li>
+                </ul>
+            </div>
+            <!-- Fraquezas -->
+            <div class="tile animate-pop delay-2" style="background: #ffebee; border-left: 8px solid #ef5350; text-align: left; padding: 25px;">
+                <h3 style="color: #c62828; font-size: 24px;"><i class="fa-solid fa-minus-circle"></i> FRAQUEZAS</h3>
+                <ul style="font-size: 18px; margin-top: 15px; padding-left: 20px;">
+                    <li>Logística instável</li>
+                    <li>Dependência de influencer</li>
+                    <li>SAC ineficiente</li>
+                </ul>
+            </div>
+            <!-- Oportunidades -->
+            <div class="tile animate-pop delay-3" style="background: #e3f2fd; border-left: 8px solid #42a5f5; text-align: left; padding: 25px;">
+                <h3 style="color: #1565c0; font-size: 24px;"><i class="fa-solid fa-arrow-trend-up"></i> OPORTUNIDADES</h3>
+                <ul style="font-size: 18px; margin-top: 15px; padding-left: 20px;">
+                    <li>Venda em Farmácias</li>
+                    <li>Internacionalização</li>
+                    <li>Clubes de Assinatura</li>
+                </ul>
+            </div>
+            <!-- Ameaças -->
+            <div class="tile animate-pop delay-4" style="background: #fff3e0; border-left: 8px solid #ffa726; text-align: left; padding: 25px;">
+                <h3 style="color: #ef6c00; font-size: 24px;"><i class="fa-solid fa-shield-halved"></i> AMEAÇAS</h3>
+                <ul style="font-size: 18px; margin-top: 15px; padding-left: 20px;">
+                    <li>Multas (Procon/MP)</li>
+                    <li>Boicotes Online</li>
+                    <li>Concorrência agressiva</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: 5W2H -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title animate-title">Plano de Ação (5W2H)</h2>
+        <div class="animate-fade-up delay-1">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">WHAT (O Quê)</th>
+                        <th style="width: 25%;">WHY (Por Quê)</th>
+                        <th style="width: 25%;">HOW (Como)</th>
+                        <th style="width: 25%;">HOW MUCH (Custo)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Implantar WMS</strong></td>
+                        <td>Evitar furos de estoque</td>
+                        <td>Integrar ERP com E-commerce</td>
+                        <td>R$ 200.000,00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Humanizar SAC</strong></td>
+                        <td>Recuperar confiança</td>
+                        <td>Contratar Equipe CX (20 un.)</td>
+                        <td>R$ 100.000/mês</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Revisar Malha</strong></td>
+                        <td>Reduzir atrasos</td>
+                        <td>Novas transportadoras</td>
+                        <td>Variável</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 11: Conclusão -->
+    <div class="slide-container full-bg-image" id="slide11" style="background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1000&auto=format&fit=crop');">
+        <div class="content-overlay animate-pop">
+            <h2 style="font-size: 80px; margin-bottom: 30px;">CONCLUSÃO</h2>
+            <hr style="width: 250px; height: 5px; border: none; background: var(--secondary-gold); margin: 0 auto 40px;">
+            <p style="font-size: 36px; font-weight: 300; line-height: 1.4; color: white;">
+                "O sucesso de uma marca não se mede apenas pelo que ela vende, mas pelo que ela <strong>entrega</strong>."
+            </p>
+            <p style="margin-top: 50px; font-size: 22px; opacity: 0.9; color: #eee;">Equilíbrio entre Hype e Operação é a chave.</p>
+            
+            <button onclick="changeSlide(-10)" style="margin-top: 60px; padding: 20px 50px; background: var(--secondary-gold); border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--dark-bg); transition: transform 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <i class="fa-solid fa-rotate-left"></i> Reiniciar Apresentação
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- CONTROLES -->
+<div class="nav-controls">
+    <button class="nav-btn" onclick="changeSlide(-1)" title="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+    <button class="nav-btn" onclick="changeSlide(1)" title="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
+</div>
+<div class="slide-counter" id="slideCounter">1 / 11</div>
+
+<script>
+    let currentSlideIndex = 1;
+    const totalSlides = 11;
+
+    function showSlide(n) {
+        const slides = document.querySelectorAll('.slide-container');
+        
+        slides.forEach(slide => {
+            slide.classList.remove('active');
+            slide.style.display = 'none';
+        });
+
+        if (n > totalSlides) currentSlideIndex = 1;
+        if (n < 1) currentSlideIndex = totalSlides;
+
+        const activeSlide = document.getElementById('slide' + currentSlideIndex);
+        
+        activeSlide.style.display = 'flex';
+        
+        setTimeout(() => {
+            activeSlide.classList.add('active');
+        }, 10);
+
+        document.getElementById('slideCounter').innerText = `${currentSlideIndex} / ${totalSlides}`;
+    }
+
+    function changeSlide(n) {
+        currentSlideIndex += n;
+        showSlide(currentSlideIndex);
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " " || event.key === "Enter") {
+            changeSlide(1);
+        } else if (event.key === "ArrowLeft") {
+            changeSlide(-1);
+        }
+    });
+
+    showSlide(currentSlideIndex);
+</script>
+
+</body>
+</html>
